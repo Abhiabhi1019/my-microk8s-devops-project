@@ -1,0 +1,20 @@
+replicaCount: 1
+
+image:
+  repository: localhost:32000/node-app
+  tag: "1"                 # Jenkins CI will update this automatically
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: true
+  className: public        # MicroK8s NGINX ingress
+  # className: traefik     # Uncomment if using MicroK8s Traefik
+  annotations: {}
+  hosts:
+    - host: mynode.local
+      paths:
+        - /

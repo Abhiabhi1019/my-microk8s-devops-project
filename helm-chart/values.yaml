@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: localhost:32000/node-app
-  tag: "1"                 # Jenkins CI will update this automatically
+  tag: "1"
   pullPolicy: Always
 
 service:
@@ -11,8 +11,7 @@ service:
 
 ingress:
   enabled: true
-  className: public        # MicroK8s NGINX ingress
-  # className: traefik     # Uncomment if using MicroK8s Traefik
+  className: public
   annotations: {}
   hosts:
     - host: mynode.local

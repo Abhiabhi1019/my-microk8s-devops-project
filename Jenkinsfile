@@ -1,31 +1,37 @@
 pipeline {
-    agent {
-        kubernetes {
-            inheritFrom 'kaniko-agent'
-            label 'kaniko'
-        }
+  agent {
+    kubernetes {
+      label 'kaniko'
+      inheritFrom 'kaniko-agent'
+    }
+  }
+
+  environment {
+    REGISTRY = "localhost:32000"
+    IMAGE = "${REGISTRY}/node-app"
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
     }
 
-    environment {
-        REGISTRY = "localhost:32000"
-        IMAGE_NAME = "myapp"
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-    }
-
-    stages {
-        stage('Build Image') {
-            steps {
-                container('kaniko') {
-                    sh """
-                    /kaniko/executor \
-                      --context . \
-                      --dockerfile Dockerfile \
-                      --destination $REGISTRY/$IMAGE_NAME:$IMAGE_TAG \
-                      --insecure \
-                      --skip-tls-verify
-                    """
-                }
-            }
+    stage('Build image with Kaniko') {
+      steps {
+        container('kaniko') {
+          sh """
+          /kaniko/executor \
+            --context $WORKSPACE \
+            --dockerfile Dockerfile \
+            --destination ${IMAGE}:${BUILD_NUMBER} \
+            --insecure \
+            --skip-tls-verify
+          """
         }
+      }
     }
+  }
 }

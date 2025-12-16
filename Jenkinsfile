@@ -1,7 +1,6 @@
 pipeline {
   agent {
     kubernetes {
-      label 'kaniko-agent'
       defaultContainer 'jnlp'
       yaml """
 apiVersion: v1
@@ -15,7 +14,8 @@ spec:
 
   - name: kaniko
     image: public.ecr.aws/kaniko-project/executor:v1.23.2
-    command: ["/busybox/cat"]
+    command:
+      - /busybox/cat
     tty: true
     volumeMounts:
       - name: kaniko-secret
@@ -31,7 +31,7 @@ spec:
 
   environment {
     REGISTRY = "localhost:32000"
-    IMAGE = "\${REGISTRY}/node-app"
+    IMAGE = "${REGISTRY}/node-app"
   }
 
   stages {
@@ -49,7 +49,7 @@ spec:
           /kaniko/executor \
             --context \$(pwd) \
             --dockerfile Dockerfile \
-            --destination \${IMAGE}:\${BUILD_NUMBER} \
+            --destination ${IMAGE}:${BUILD_NUMBER} \
             --insecure \
             --skip-tls-verify
           """

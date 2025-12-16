@@ -7,6 +7,7 @@ apiVersion: v1
 kind: Pod
 spec:
   serviceAccountName: jenkins
+
   containers:
   - name: jnlp
     image: docker.io/jenkins/inbound-agent:latest
@@ -14,9 +15,13 @@ spec:
 
   - name: kaniko
     image: gcr.io/kaniko-project/executor:latest
-    command:
-      - /busybox/cat
     tty: true
+    command:
+      - /busybox/sh
+      - -c
+      - "sleep infinity"
+    securityContext:
+      runAsUser: 0
     volumeMounts:
       - name: kaniko-secret
         mountPath: /kaniko/.docker
@@ -35,7 +40,6 @@ spec:
   }
 
   stages {
-
     stage('Checkout') {
       steps {
         checkout scm

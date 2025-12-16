@@ -12,8 +12,7 @@ service:
 ingress:
   enabled: true
   className: public
-  annotations: {}
   hosts:
-    - host: mynode.local
+    - host: node.local
       paths:
         - /

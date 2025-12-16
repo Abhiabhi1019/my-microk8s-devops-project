@@ -8,7 +8,7 @@ spec:
   serviceAccountName: jenkins
   containers:
   - name: jnlp
-    image: docker.io/jenkins/inbound-agent:latest
+    image: jenkins/inbound-agent:latest
     tty: true
 
   - name: kaniko
@@ -28,11 +28,12 @@ spec:
   }
 
   environment {
-    REGISTRY = "192.168.220.11:32000"
-    IMAGE = "node-app"
+    REGISTRY = "localhost:32000"
+    IMAGE = "localhost:32000/node-app"
   }
 
   stages {
+
     stage('Checkout') {
       steps {
         checkout scm
@@ -42,14 +43,38 @@ spec:
     stage('Build & Push Image') {
       steps {
         container('kaniko') {
-          sh '''
+          sh """
           /kaniko/executor \
-            --context $(pwd) \
+            --context \$(pwd) \
             --dockerfile Dockerfile \
-            --destination ${REGISTRY}/${IMAGE}:${BUILD_NUMBER} \
+            --destination ${IMAGE}:${BUILD_NUMBER} \
             --insecure \
-            --skip-tls-verify \
-            --skip-tls-verify-pull
+            --skip-tls-verify
+          """
+        }
+      }
+    }
+
+    stage('Update Helm values') {
+      steps {
+        sh """
+          sed -i 's/tag:.*/tag: "${BUILD_NUMBER}"/' helm/node-app/values.yaml
+        """
+      }
+    }
+
+    stage('Commit & Push Helm update') {
+      steps {
+        withCredentials([sshUserPrivateKey(
+          credentialsId: 'github-ssh',
+          keyFileVariable: 'SSH_KEY'
+        )]) {
+          sh '''
+            git config user.email "jenkins@ci"
+            git config user.name "Jenkins CI"
+            git add helm/node-app/values.yaml
+            git commit -m "ci: update image tag to ${BUILD_NUMBER}"
+            git push origin main
           '''
         }
       }

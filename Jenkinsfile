@@ -9,11 +9,11 @@ spec:
   serviceAccountName: jenkins
   containers:
   - name: jnlp
-    image: public.ecr.aws/jenkins/jenkins-agent:latest
+    image: docker.io/jenkins/inbound-agent:latest
     tty: true
 
   - name: kaniko
-    image: public.ecr.aws/kaniko-project/executor:v1.23.2
+    image: gcr.io/kaniko-project/executor:latest
     command:
       - /busybox/cat
     tty: true

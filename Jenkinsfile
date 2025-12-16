@@ -1,26 +1,20 @@
 pipeline {
   agent {
     kubernetes {
-      podRetention onFailure()
-      defaultContainer 'jnlp'
       yaml """
 apiVersion: v1
 kind: Pod
 spec:
   serviceAccountName: jenkins
-
   containers:
   - name: jnlp
     image: docker.io/jenkins/inbound-agent:latest
     tty: true
 
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:debug
+    image: gcr.io/kaniko-project/executor:latest
+    command: ["/busybox/cat"]
     tty: true
-    command:
-      - /busybox/sh
-      - -c
-      - "sleep infinity"
     volumeMounts:
       - name: kaniko-secret
         mountPath: /kaniko/.docker
@@ -34,12 +28,11 @@ spec:
   }
 
   environment {
-    REGISTRY = "localhost:32000"
+    REGISTRY = "registry.kube-system:32000"
     IMAGE = "${REGISTRY}/node-app"
   }
 
   stages {
-
     stage('Checkout') {
       steps {
         checkout scm
@@ -51,7 +44,7 @@ spec:
         container('kaniko') {
           sh """
           /kaniko/executor \
-            --context \$(pwd) \
+            --context $(pwd) \
             --dockerfile Dockerfile \
             --destination ${IMAGE}:${BUILD_NUMBER} \
             --insecure \

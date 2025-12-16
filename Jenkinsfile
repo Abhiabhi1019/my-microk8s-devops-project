@@ -1,7 +1,7 @@
 pipeline {
   agent {
     kubernetes {
-      yaml """
+      yaml '''
 apiVersion: v1
 kind: Pod
 spec:
@@ -23,7 +23,7 @@ spec:
   - name: kaniko-secret
     secret:
       secretName: regcred
-"""
+'''
     }
   }
 
@@ -42,14 +42,14 @@ spec:
     stage('Build & Push Image') {
       steps {
         container('kaniko') {
-          sh """
+          sh '''
           /kaniko/executor \
-            --context \\$(pwd) \
+            --context $(pwd) \
             --dockerfile Dockerfile \
-            --destination ${IMAGE}:${BUILD_NUMBER} \
+            --destination '"${IMAGE}:${BUILD_NUMBER}"' \
             --insecure \
             --skip-tls-verify
-          """
+          '''
         }
       }
     }

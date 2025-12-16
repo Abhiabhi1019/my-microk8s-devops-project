@@ -1,7 +1,6 @@
-pipeline {
-  agent {
-    kubernetes {
-      yaml '''
+agent {
+  kubernetes {
+    yaml '''
 apiVersion: v1
 kind: Pod
 spec:
@@ -12,7 +11,7 @@ spec:
     tty: true
 
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
+    image: gcr.io/kaniko-project/executor:debug
     command: ["/busybox/cat"]
     tty: true
     volumeMounts:
@@ -24,34 +23,5 @@ spec:
     secret:
       secretName: regcred
 '''
-    }
-  }
-
-  environment {
-    REGISTRY = "registry.kube-system:32000"
-    IMAGE = "${REGISTRY}/node-app"
-  }
-
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
-
-    stage('Build & Push Image') {
-      steps {
-        container('kaniko') {
-          sh '''
-          /kaniko/executor \
-            --context $(pwd) \
-            --dockerfile Dockerfile \
-            --destination '"${IMAGE}:${BUILD_NUMBER}"' \
-            --insecure \
-            --skip-tls-verify
-          '''
-        }
-      }
-    }
   }
 }

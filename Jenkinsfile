@@ -28,8 +28,8 @@ spec:
   }
 
   environment {
-    REGISTRY = "localhost:32000"
-    IMAGE = "${REGISTRY}/node-app"
+    REGISTRY = "192.168.220.11:32000"
+    IMAGE = "node-app"
   }
 
   stages {
@@ -46,9 +46,10 @@ spec:
           /kaniko/executor \
             --context $(pwd) \
             --dockerfile Dockerfile \
-            --destination ${IMAGE}:${BUILD_NUMBER} \
+            --destination ${REGISTRY}/${IMAGE}:${BUILD_NUMBER} \
             --insecure \
-            --skip-tls-verify
+            --skip-tls-verify \
+            --skip-tls-verify-pull
           '''
         }
       }

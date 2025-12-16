@@ -1,6 +1,7 @@
-agent {
-  kubernetes {
-    yaml '''
+pipeline {
+  agent {
+    kubernetes {
+      yaml '''
 apiVersion: v1
 kind: Pod
 spec:
@@ -23,5 +24,34 @@ spec:
     secret:
       secretName: regcred
 '''
+    }
+  }
+
+  environment {
+    REGISTRY = "localhost:32000"
+    IMAGE = "${REGISTRY}/node-app"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Build & Push Image') {
+      steps {
+        container('kaniko') {
+          sh '''
+          /kaniko/executor \
+            --context $(pwd) \
+            --dockerfile Dockerfile \
+            --destination '"${IMAGE}:${BUILD_NUMBER}"' \
+            --insecure \
+            --skip-tls-verify
+          '''
+        }
+      }
+    }
   }
 }

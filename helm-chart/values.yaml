@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: localhost:32000/node-app
+  repository: 192.168.220.11:32000/node-app
   tag: "1"
   pullPolicy: Always
 

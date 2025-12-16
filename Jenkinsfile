@@ -28,8 +28,8 @@ spec:
   }
 
   environment {
-    REGISTRY = "localhost:32000"
-    IMAGE = "localhost:32000/node-app"
+    REGISTRY = "192.168.220.11:32000"
+    IMAGE = "192.168.220.11:32000/node-app"
   }
 
   stages {

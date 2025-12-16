@@ -12,8 +12,10 @@ spec:
       labels:
         app: node-app
     spec:
+      imagePullSecrets:
+        - name: regcred     # 👈 MUST be here (pod spec level)
       containers:
-      - name: node-app
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        ports:
-        - containerPort: 3000
+        - name: node-app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 3000

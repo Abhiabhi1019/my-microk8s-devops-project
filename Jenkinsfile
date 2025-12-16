@@ -44,7 +44,7 @@ spec:
         container('kaniko') {
           sh """
           /kaniko/executor \
-            --context $(pwd) \
+            --context \\$(pwd) \
             --dockerfile Dockerfile \
             --destination ${IMAGE}:${BUILD_NUMBER} \
             --insecure \

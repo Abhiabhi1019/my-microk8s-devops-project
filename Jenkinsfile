@@ -1,6 +1,7 @@
 pipeline {
   agent {
     kubernetes {
+      podRetention onFailure()
       defaultContainer 'jnlp'
       yaml """
 apiVersion: v1
@@ -14,8 +15,12 @@ spec:
     tty: true
 
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
+    image: gcr.io/kaniko-project/executor:debug
     tty: true
+    command:
+      - /busybox/sh
+      - -c
+      - "sleep infinity"
     volumeMounts:
       - name: kaniko-secret
         mountPath: /kaniko/.docker
